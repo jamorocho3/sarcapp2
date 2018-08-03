@@ -1,0 +1,34 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">SARCAPP</string>
+    <string name="action_settings">Settings</string>
+    <string name="uploadCSV">Subir Archivo CSV</string>
+    <string name="ruta">Ruta:</string>
+    <string name="crear_curso_form">Crear Curso</string>
+    <string name="periodo">Periodo</string>
+    <string name="cod_materia">Código de materia</string>
+    <string name="nrc">Nrc</string>
+    <string name="materia">Materia</string>
+    <string name="campus">Campus</string>
+    <string name="docente">Docente</string>
+    <string name="continuar" tools:keep="@string/continuar">Continuar</string>
+    <string name="cancelar" tools:keep="@string/cancelar">Cancelar</string>
+    <string name="form1">Datos de la materia</string>
+    <string name="form2">Estudiantes</string>
+    <string name="form2_1" tools:keep="@string/form2_1">Datos del Estudiante</string>
+    <string name="id">ID</string>
+    <string name="cedula">Cédula</string>
+    <string name="cursos">Cursos</string>
+    <string name="form3">Horario</string>
+    <string name="form3_sub1">Seleccione los dias de clases</string>
+    <string name="lunes">Lunes</string>
+    <string name="martes">Martes</string>
+    <string name="miercoles">Miercoles</string>
+    <string name="jueves">Jueves</string>
+    <string name="viernes">Viernes</string>
+    <string name="h_inicio">Hora Inicio</string>
+    <string name="h_fin">Hora Fin</string>
+    <string name="save">Guardar</string>
+    <string name="horas">Dias a la semana</string>
+    <string name="sincronize">Sincronizar</string>
+    <string name="info_csv">Asegúrese de subir un archivo en formato csv, además verifique que la ruta comience de la siguiente manera: \"/storage/\"</string>
+</resources>
