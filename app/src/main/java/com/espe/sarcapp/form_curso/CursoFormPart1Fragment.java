@@ -5,23 +5,25 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.espe.sarcapp.R;
-import com.espe.sarcapp.form_curso.comunication.Prueba;
+import com.espe.sarcapp.form_curso.comunication.DiasSemana;
 
 import org.greenrobot.eventbus.EventBus;
 
-public class CursoFormPart1Fragment extends Fragment {
+public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnItemSelectedListener{
 
     // Widgets XML
-    private EditText periodo, codigo_materia, materia, nrc, horas, campus, docente;
+    private EditText periodo, codigo_materia, materia, nrc, campus, docente;
+    private Spinner diasSemana;
     private EventBus bus = EventBus.getDefault();
 
     @Override
@@ -36,26 +38,35 @@ public class CursoFormPart1Fragment extends Fragment {
         codigo_materia = view.findViewById(R.id.cod_materia);
         materia = view.findViewById(R.id.materia);
         nrc = view.findViewById(R.id.nrc);
-        horas = view.findViewById(R.id.horas);
+        diasSemana = view.findViewById(R.id.dias_por_semana_spinner);
         campus = view.findViewById(R.id.campus);
         docente = view.findViewById(R.id.docente);
         // Funcion para cargar datos en los edittext
         datosCurso(getArguments(), container.getContext());
-        // TextWatcher en el horas
-                //bus.post(new Prueba("2"));
-        horas.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+        // Llenamos el spinner con: 1 2 3 y 4 días
+            // Creamos un ArrayAdapter usando un String resource y un spinner por default
+            // Especificamos el diseño que usaremos cuando aparezca la lista de opciones
+            // Aplicamos el adaptador al spinner
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(container.getContext(), R.array.dias_semana_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        diasSemana.setAdapter(adapter);
+        // Evento para extraer el día seleccionado
+        diasSemana.setOnItemSelectedListener(this);
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                // Preparamos el dato que será enviado al otro fragment
-                bus.post(new Prueba(horas.getText().toString()));
-            }
-        });
+//        diasSemana.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                // Preparamos el dato que será enviado al otro fragment
+//                bus.post(new DiasSemana(diasSemana.getText().toString()));
+//            }
+//        });
         return view;
     }
 
@@ -94,6 +105,29 @@ public class CursoFormPart1Fragment extends Fragment {
         } else {
             Toast.makeText(context, "Algo sucedió mientras se leía la información del curso!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        switch (i) {
+            case 0: Toast.makeText(getContext(), "Seleccione el número de dias a la semana en los que tiene esta asignatura", Toast.LENGTH_LONG).show();
+                break;
+            case 1: Toast.makeText(getContext(), "1Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
+                break;
+            case 2: Toast.makeText(getContext(), "2Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
+                break;
+            case 3: Toast.makeText(getContext(), "3Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
+                break;
+            case 4: Toast.makeText(getContext(), "4Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
+                break;
+        }
+        // Preparamos el dato que será enviado al otro fragment
+        bus.post(new DiasSemana(String.valueOf(i)));
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 
     public interface OnFragmentInteractionListener {

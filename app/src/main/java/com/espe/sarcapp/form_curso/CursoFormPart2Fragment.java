@@ -1,9 +1,11 @@
 package com.espe.sarcapp.form_curso;
 
+import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +14,21 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.espe.sarcapp.R;
-import com.espe.sarcapp.form_curso.comunication.Prueba;
+import com.espe.sarcapp.form_curso.comunication.DiasSemana;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class CursoFormPart2Fragment extends Fragment {
@@ -35,8 +42,11 @@ public class CursoFormPart2Fragment extends Fragment {
     private EditText tinitLunes, tinitMartes, tinitMiercoles, tinitJueves, tinitViernes;
     private EditText tendLunes, tendMartes, tendMiercoles, tendJueves, tendViernes;
     private CheckBox cbxLunes, cbxMartes, cbxMiercoles, cbxJueves, cbxViernes;
-    private TextView prueba;
+    private TextView tvDias;
     private EventBus bus = EventBus.getDefault();
+    private String diasSemana;
+    private int CONT_CBX_ENABLED = 0; // contador de checkboxes activos
+    private ArrayList<CheckBox> arrayCbx = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,13 +73,6 @@ public class CursoFormPart2Fragment extends Fragment {
         cbxMiercoles = view.findViewById(R.id.cbxMiercoles);
         cbxJueves = view.findViewById(R.id.cbxJueves);
         cbxViernes = view.findViewById(R.id.cbxViernes);
-            // añadir checkboxes en arraylist
-        ArrayList<CheckBox> arrayCbx = new ArrayList<>();
-        arrayCbx.add(cbxLunes);
-        arrayCbx.add(cbxMartes);
-        arrayCbx.add(cbxMiercoles);
-        arrayCbx.add(cbxJueves);
-        arrayCbx.add(cbxViernes);
         // ----------------------------------------------------------------------------------------
         // EditTexts events
         tinitLunes.setOnClickListener(new GetTime());
@@ -90,7 +93,13 @@ public class CursoFormPart2Fragment extends Fragment {
         cbxJueves.setOnCheckedChangeListener(new selectDay());
         cbxViernes.setOnCheckedChangeListener(new selectDay());
         // -----------------------------------------------------------------------------------------
-        prueba = view.findViewById(R.id.diasSemana);
+        tvDias = view.findViewById(R.id.diasSemana);
+        // añadir checkboxes en arraylist
+        arrayCbx.add(cbxLunes);
+        arrayCbx.add(cbxMartes);
+        arrayCbx.add(cbxMiercoles);
+        arrayCbx.add(cbxJueves);
+        arrayCbx.add(cbxViernes);
         return view;
     }
 
@@ -112,56 +121,73 @@ public class CursoFormPart2Fragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void ejecutarLlamada(Prueba b) {
-        prueba.setText("Horas: "+b.getHorasSemana());
+    public void ejecutarLlamada(DiasSemana b) {
+        diasSemana = b.getDiasSemana().isEmpty() ? "0" : b.getDiasSemana();
+        // Colocamos los dias por semana en el textView
+        tvDias.setVisibility(View.VISIBLE);
+        tvDias.setText(String.valueOf(diasSemana)+" día/s");
+        // Si los días son diferentes de "0" los checkboxes se activan
+        for (int i = 0; i < arrayCbx.size() ; i++) {
+            if (!diasSemana.equals("0")) {
+                arrayCbx.get(i).setEnabled(true);
+            } else {
+                arrayCbx.get(i).setEnabled(false);
+                arrayCbx.get(i).setChecked(false);
+            }
+        }
     }
 
     public interface OnFragmentInteractionListener { }
 
     private class GetTime implements View.OnClickListener {
+        @SuppressLint("SimpleDateFormat")
+        DateFormat df = new SimpleDateFormat("HH:mm");
+        String horaFin, horaInicio;
+
         @Override
         public void onClick(final View v) {
-            Calendar mcurrentTime = Calendar.getInstance();
+            final Calendar mcurrentTime = Calendar.getInstance();
             int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
             int minute = mcurrentTime.get(Calendar.MINUTE);
-            TimePickerDialog mTimePicker;
+            final TimePickerDialog mTimePicker;
             mTimePicker = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                    String hour;
-                    if(selectedMinute == 0 ) { hour = selectedHour + ":00"; }
-                    else if(selectedMinute < 10) { hour = selectedHour + ":0" + selectedMinute; }
-                    else { hour = selectedHour + ":" + selectedMinute; }
+                    Date horaObtenida;
+                    try {
+                        horaObtenida = df.parse(selectedHour+":"+selectedMinute);
+                        mcurrentTime.setTime(horaObtenida);
+                        mcurrentTime.add(Calendar.HOUR, 2);
+                        horaInicio = df.format(horaObtenida.getTime());
+                        horaFin = df.format(mcurrentTime.getTime());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                     switch (v.getId()) {
-                        case R.id.tInit_lunes:
-                            tinitLunes.setText(hour);
+                        case R.id.tInit_lunes: tinitLunes.setText(horaInicio);
+                            tendLunes.setText(horaFin);
                             break;
-                        case R.id.tInit_martes:
-                            tinitMartes.setText(hour);
+                        case R.id.tInit_martes: tinitMartes.setText(horaInicio);
+                            tendMartes.setText(horaFin);
                             break;
-                        case R.id.tInit_miercoles:
-                            tinitMiercoles.setText(hour);
+                        case R.id.tInit_miercoles: tinitMiercoles.setText(horaInicio);
+                            tendMiercoles.setText(horaFin);
                             break;
-                        case R.id.tInit_jueves:
-                            tinitJueves.setText(hour);
+                        case R.id.tInit_jueves: tinitJueves.setText(horaInicio);
+                            tendJueves.setText(horaFin);
                             break;
-                        case R.id.tInit_viernes:
-                            tinitViernes.setText(hour);
+                        case R.id.tInit_viernes: tinitViernes.setText(horaInicio);
+                            tendViernes.setText(horaFin);
                             break;
-                        case R.id.tEnd_lunes:
-                            tendLunes.setText(hour);
+                        case R.id.tEnd_lunes: tendLunes.setText(horaInicio);
                             break;
-                        case R.id.tEnd_martes:
-                            tendMartes.setText(hour);
+                        case R.id.tEnd_martes: tendMartes.setText(horaInicio);
                             break;
-                        case R.id.tEnd_miercoles:
-                            tendMiercoles.setText(hour);
+                        case R.id.tEnd_miercoles: tendMiercoles.setText(horaInicio);
                             break;
-                        case R.id.tEnd_jueves:
-                            tendJueves.setText(hour);
+                        case R.id.tEnd_jueves: tendJueves.setText(horaInicio);
                             break;
-                        case R.id.tEnd_viernes:
-                            tendViernes.setText(hour);
+                        case R.id.tEnd_viernes: tendViernes.setText(horaInicio);
                             break;
                     }
                 }
@@ -174,64 +200,77 @@ public class CursoFormPart2Fragment extends Fragment {
     private class selectDay implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            int cbxEnabled = 0;
+            // -------------------------------------------------------------------------------------
+            /*
+             * for que va de cero al tamaño del array
+             * tanto si se cumple o no la condicioón le pasamos el contador a la variable horasSemana
+             * pero tiene más prioridad resultado que arroja si la condición es verdadera
+             * al final es necesario resetear el contador
+             */
+            for (int i = 0; i < arrayCbx.size() ; i++) {
+                if (arrayCbx.get(i).isChecked()) {
+                    CONT_CBX_ENABLED++;
+                    cbxEnabled = CONT_CBX_ENABLED;
+                } else {
+                    cbxEnabled = CONT_CBX_ENABLED;
+                }
+            }
+            CONT_CBX_ENABLED = 0;
+            // -------------------------------------------------------------------------------------
+            /*
+             * Si los diasSemana coinciden con el # de checkbox activos
+             *  for que recorra toda el array y bloquee los checks restantes
+             * Sino
+             */
+            if (diasSemana.equals(String.valueOf(cbxEnabled))) {
+                for (int i = 0; i < arrayCbx.size() ; i++) {
+                    if (!arrayCbx.get(i).isChecked()) {
+                        arrayCbx.get(i).setEnabled(false);
+                    }
+                }
+            } else {
+                for (int i = 0; i < arrayCbx.size() ; i++) {
+                    arrayCbx.get(i).setEnabled(true);
+                }
+            }
+            // -------------------------------------------------------------------------------------
             if ( isChecked ) {
                 switch (buttonView.getId()) {
-                    case R.id.cbxLunes:
-                        tinitLunes.setEnabled(true);
-                        tendLunes.setEnabled(true);
+                    case R.id.cbxLunes: activarEditTexts(tinitLunes, tendLunes, true);
                         break;
-                    case R.id.cbxMartes:
-                        tinitMartes.setEnabled(true);
-                        tendMartes.setEnabled(true);
+                    case R.id.cbxMartes: activarEditTexts(tinitMartes, tendMartes, true);
                         break;
-                    case R.id.cbxMiercoles:
-                        tinitMiercoles.setEnabled(true);
-                        tendMiercoles.setEnabled(true);
+                    case R.id.cbxMiercoles: activarEditTexts(tinitMiercoles, tendMiercoles, true);
                         break;
-                    case R.id.cbxJueves:
-                        tinitJueves.setEnabled(true);
-                        tendJueves.setEnabled(true);
+                    case R.id.cbxJueves: activarEditTexts(tinitJueves, tendJueves, true);
                         break;
-                    case R.id.cbxViernes:
-                        tinitViernes.setEnabled(true);
-                        tendViernes.setEnabled(true);
+                    case R.id.cbxViernes: activarEditTexts(tinitViernes, tendViernes, true);
                         break;
                 }
             } else {
                 switch (buttonView.getId()) {
-                    case R.id.cbxLunes:
-                        tinitLunes.setEnabled(false);
-                        tendLunes.setEnabled(false);
-                        tinitLunes.setText(null);
-                        tendLunes.setText(null);
+                    case R.id.cbxLunes: activarEditTexts(tinitLunes, tendLunes, false);
                         break;
-                    case R.id.cbxMartes:
-                        tinitMartes.setEnabled(false);
-                        tendMartes.setEnabled(false);
-                        tinitMartes.setText(null);
-                        tendMartes.setText(null);
+                    case R.id.cbxMartes: activarEditTexts(tinitMartes, tendMartes, false);
                         break;
-                    case R.id.cbxMiercoles:
-                        tinitMiercoles.setEnabled(false);
-                        tendMiercoles.setEnabled(false);
-                        tinitMiercoles.setText(null);
-                        tendMiercoles.setText(null);
+                    case R.id.cbxMiercoles: activarEditTexts(tinitMiercoles, tendMiercoles, false);
                         break;
-                    case R.id.cbxJueves:
-                        tinitJueves.setEnabled(false);
-                        tendJueves.setEnabled(false);
-                        tinitJueves.setText(null);
-                        tendJueves.setText(null);
+                    case R.id.cbxJueves: activarEditTexts(tinitJueves, tendJueves, false);
                         break;
-                    case R.id.cbxViernes:
-                        tinitViernes.setEnabled(false);
-                        tendViernes.setEnabled(false);
-                        tinitViernes.setText(null);
-                        tendViernes.setText(null);
+                    case R.id.cbxViernes: activarEditTexts(tinitViernes, tendViernes, false);
                         break;
                 }
             }
+        }
+    }
 
+    private void activarEditTexts(EditText init, EditText end, boolean isChecked) {
+        init.setEnabled(isChecked);
+        end.setEnabled(isChecked);
+        if (!isChecked) {
+            init.setText(null);
+            end.setText(null);
         }
     }
 }

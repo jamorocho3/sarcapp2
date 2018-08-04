@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="dias_semana_array">
+        <item>Seleccione</item>
+        <item>1 vez por semana</item>
+        <item>2 veces por semana</item>
+        <item>3 veces por semana</item>
+        <item>4 veces por semana</item>
+    </string-array>
+</resources>

@@ -86,14 +86,13 @@ public class CursoFormPart3Fragment extends Fragment {
         //obtenemos el cotexto de los elementos de la vista
         lv = view.findViewById(R.id.listaEstudiantes);
         // carga de arraylist
-        cargaEstudiantes(Objects.requireNonNull(getArguments()), getActivity());
+        cargaEstudiantes(Objects.requireNonNull(getArguments()), getContext());
 
     }
 
     private void cargaEstudiantes(Bundle parametros, Context context) {
         ArrayList<String> lista = parametros.getStringArrayList("estudiantes");
         if (!Objects.requireNonNull(lista).isEmpty()) {
-            Toast.makeText(context, "Tamaño: "+lista.size(), Toast.LENGTH_SHORT).show();
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, lista);
             lv.setAdapter(arrayAdapter);
         } else {

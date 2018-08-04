@@ -4,6 +4,7 @@
     tools:context="com.espe.sarcapp.form_curso.CursoFormActivity">
     <item
         android:id="@+id/action_save"
+        android:enabled="false"
         android:icon="@drawable/ic_save_24dp"
         android:orderInCategory="100"
         android:title="@string/save"
