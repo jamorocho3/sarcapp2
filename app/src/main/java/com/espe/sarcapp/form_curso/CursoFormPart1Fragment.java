@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.espe.sarcapp.R;
-import com.espe.sarcapp.form_curso.comunication.Prueba;
+import com.espe.sarcapp.form_curso.comunication.DiasSemana;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,7 +42,6 @@ public class CursoFormPart1Fragment extends Fragment {
         // Funcion para cargar datos en los edittext
         datosCurso(getArguments(), container.getContext());
         // TextWatcher en el horas
-                //bus.post(new Prueba("2"));
         horas.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -53,7 +52,7 @@ public class CursoFormPart1Fragment extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 // Preparamos el dato que será enviado al otro fragment
-                bus.post(new Prueba(horas.getText().toString()));
+                bus.post(new DiasSemana(horas.getText().toString()));
             }
         });
         return view;
