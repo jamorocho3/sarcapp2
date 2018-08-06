@@ -1,13 +1,13 @@
 package com.espe.sarcapp.form_curso.comunication;
 
 public class DiasSemana {
-    String dias_por_semana;
+    private String diasSemana;
 
-    public DiasSemana(String dias_por_semana) {
-        this.dias_por_semana = dias_por_semana;
+    public DiasSemana(String diasSemana) {
+        this.diasSemana = diasSemana;
     }
 
     public String getDiasSemana() {
-        return dias_por_semana;
+        return diasSemana;
     }
 }
