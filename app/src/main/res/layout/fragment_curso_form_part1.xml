@@ -8,7 +8,6 @@
     tools:context=".form_curso.CursoFormPart1Fragment">
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".CursoForm_1Activity">
@@ -18,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:labelFor="@+id/constraint"
+            android:labelFor="@+id/dias_por_semana_spinner"
             android:text="@string/horas"
             app:layout_constraintStart_toStartOf="@+id/guideline7"
             app:layout_constraintTop_toBottomOf="@+id/guideline5" />
@@ -62,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="117dp" />
+            app:layout_constraintGuide_percent="0.23" />
 
         <android.support.constraint.Guideline
             android:id="@+id/guideline4"

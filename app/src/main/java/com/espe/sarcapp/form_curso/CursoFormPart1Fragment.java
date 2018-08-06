@@ -24,15 +24,18 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
     // Widgets XML
     private EditText periodo, codigo_materia, materia, nrc, campus, docente;
     private Spinner diasSemana;
+    private View view = null;
     private EventBus bus = EventBus.getDefault();
 
     @Override
     public void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState); }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@Nullable LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_curso_form_part1, container, false);
+        if (inflater != null) {
+            view = inflater.inflate(R.layout.fragment_curso_form_part1, container, false);
+        }
         // obtenemos el contexto de los elementos de la vista
         periodo = view.findViewById(R.id.periodo);
         codigo_materia = view.findViewById(R.id.cod_materia);
@@ -44,29 +47,14 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
         // Funcion para cargar datos en los edittext
         datosCurso(getArguments(), container.getContext());
         // Llenamos el spinner con: 1 2 3 y 4 días
-            // Creamos un ArrayAdapter usando un String resource y un spinner por default
-            // Especificamos el diseño que usaremos cuando aparezca la lista de opciones
-            // Aplicamos el adaptador al spinner
+        // Creamos un ArrayAdapter usando un String resource y un spinner por default
+        // Especificamos el diseño que usaremos cuando aparezca la lista de opciones
+        // Aplicamos el adaptador al spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(container.getContext(), R.array.dias_semana_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         diasSemana.setAdapter(adapter);
         // Evento para extraer el día seleccionado
         diasSemana.setOnItemSelectedListener(this);
-
-
-//        diasSemana.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//                // Preparamos el dato que será enviado al otro fragment
-//                bus.post(new DiasSemana(diasSemana.getText().toString()));
-//            }
-//        });
         return view;
     }
 
@@ -109,17 +97,8 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        switch (i) {
-            case 0: Toast.makeText(getContext(), "Seleccione el número de dias a la semana en los que tiene esta asignatura", Toast.LENGTH_LONG).show();
-                break;
-            case 1: Toast.makeText(getContext(), "1Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
-                break;
-            case 2: Toast.makeText(getContext(), "2Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
-                break;
-            case 3: Toast.makeText(getContext(), "3Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
-                break;
-            case 4: Toast.makeText(getContext(), "4Selección: "+l+" y posicion: "+i, Toast.LENGTH_SHORT).show();
-                break;
+        if (i == 0) {
+            Toast.makeText(getContext(), "Seleccione el número de dias a la semana en los que tiene esta asignatura", Toast.LENGTH_LONG).show();
         }
         // Preparamos el dato que será enviado al otro fragment
         bus.post(new DiasSemana(String.valueOf(i)));
@@ -130,7 +109,7 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
 
     }
 
-    public interface OnFragmentInteractionListener {
+    interface OnFragmentInteractionListener {
     }
 }
 

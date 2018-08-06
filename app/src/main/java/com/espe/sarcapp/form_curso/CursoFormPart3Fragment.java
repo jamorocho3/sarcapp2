@@ -70,13 +70,15 @@ public class CursoFormPart3Fragment extends Fragment {
     }
 
     // Widgets XML
-    private View view;
+    private View view = null;
     private ListView lv;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@Nullable LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_curso_form_part3, container, false);
+        if (inflater != null) {
+            view = inflater.inflate(R.layout.fragment_curso_form_part3, container, false);
+        }
         return view;
     }
 
