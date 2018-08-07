@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.espe.sarcapp.R;
 import com.espe.sarcapp.form_curso.comunication.DiasSemana;
+import com.espe.sarcapp.models.Curso;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -26,6 +27,7 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
     private Spinner diasSemana;
     private View view = null;
     private EventBus bus = EventBus.getDefault();
+    private Curso curso;
 
     @Override
     public void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState); }
@@ -45,7 +47,9 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
         campus = view.findViewById(R.id.campus);
         docente = view.findViewById(R.id.docente);
         // Funcion para cargar datos en los edittext
-        datosCurso(getArguments(), container.getContext());
+        assert getArguments() != null;
+        curso = (Curso) getArguments().getSerializable("curso");
+        datosCurso(curso, container.getContext());
         // Llenamos el spinner con: 1 2 3 y 4 días
         // Creamos un ArrayAdapter usando un String resource y un spinner por default
         // Especificamos el diseño que usaremos cuando aparezca la lista de opciones
@@ -70,26 +74,14 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
 
     }
 
-    private void datosCurso(Bundle parametros, Context context) {
-        if(parametros != null) {
-            // invocar periodo
-            String txtPeriodo = parametros.getString("periodo");
-            periodo.setText(txtPeriodo);
-            // invocar cod_materia
-            String txtCodMateria = parametros.getString("cod_materia");
-            codigo_materia.setText(txtCodMateria);
-            // invocar materia
-            String txtMateria = parametros.getString("materia");
-            materia.setText(txtMateria);
-            // invocar nrc
-            String txtNrc = parametros.getString("nrc");
-            nrc.setText(txtNrc);
-            // invocar campus
-            String txtCampus = parametros.getString("campus");
-            campus.setText(txtCampus);
-            // invocar docente
-            String txtDocente = parametros.getString("docente");
-            docente.setText(txtDocente);
+    private void datosCurso(Curso curso, Context context) {
+        if(curso != null) {
+            periodo.setText(curso.getPeriodo());
+            codigo_materia.setText(curso.getCodigo_materia());
+            materia.setText(curso.getMateria());
+            nrc.setText(curso.getNrc());
+            campus.setText(curso.getCampus());
+            docente.setText(curso.getDocente());
         } else {
             Toast.makeText(context, "Algo sucedió mientras se leía la información del curso!", Toast.LENGTH_SHORT).show();
         }
@@ -100,6 +92,8 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
         if (i == 0) {
             Toast.makeText(getContext(), "Seleccione el número de dias a la semana en los que tiene esta asignatura", Toast.LENGTH_LONG).show();
         }
+        //le asignamos el valor a la clase Curso
+        curso.setDias_semana(i);
         // Preparamos el dato que será enviado al otro fragment
         bus.post(new DiasSemana(String.valueOf(i)));
     }

@@ -14,6 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.espe.sarcapp.form_curso.CursoFormActivity;
+import com.espe.sarcapp.models.Curso;
+import com.espe.sarcapp.models.Estudiante;
+import com.espe.sarcapp.models.ListaEstudiantes;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -76,60 +79,49 @@ public class CSVReaderActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
     // ---------------------------------------Leer datos csv----------------------------------------
-    private void procesarCSV() {
+    private void procesarCSV() throws RuntimeException {
         // leer el archivo csv
         String uri_csv = ruta.getText().toString();
-
         String charSplit = ",";
+        String[] datosEstudiantes;
         BufferedReader br = null;
         ArrayList<String> resultList = new ArrayList();
+        ListaEstudiantes formatListEstudiantes = new ListaEstudiantes();
         try {
             String csvLine;
+            Bundle bundle = new Bundle();
             FileInputStream fis = new FileInputStream(uri_csv);
             br = new BufferedReader(new InputStreamReader(fis));
             // añadir en un arraylist todas las lineas del archivo
             while ((csvLine = br.readLine()) != null) {
-                //String[] row = csvLine.split(",");
                 resultList.add(csvLine);
             }
             // en un array nuevo colocamos los datos de los estudiantes
-            ArrayList<String> listEstudiantes = new ArrayList();
-            // empezar en 13 y hacer que guarde antes de las comas
-            for(int i=13;i<resultList.size();i++) {
+            for(int i = 13; i<resultList.size(); i++) {
                 if (resultList.get(i).equals(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,")) {
                     break;
                 }
-                listEstudiantes.add(resultList.get(i));
+                datosEstudiantes = resultList.get(i).split(charSplit);
+                formatListEstudiantes.add(new Estudiante(datosEstudiantes[2],datosEstudiantes[3],datosEstudiantes[4]));
             }
             // Redirigir al formulario de creacion de curso
-            Bundle bundle = new Bundle();
             Intent CursoFormView = new Intent(CSVReaderActivity.this, CursoFormActivity.class);
-            // Todo: Enviar los datos del curso en una sola clase
-            // Enviar periodo
+            // Obtener info del curso
             String[] periodo = resultList.get(1).split(charSplit);
-            bundle.putString("periodo",periodo[1].substring(9));
-            // Enviar codigo de materia
             String[] cod_materia = resultList.get(4).split(charSplit);
-            bundle.putString("cod_materia",cod_materia[1]);
-            // Enviar materia
             String[] materia = resultList.get(4).split(charSplit);
-            bundle.putString("materia",materia[7]);
-            // Enviar nrc
             String[] nrc = resultList.get(5).split(charSplit);
-            bundle.putString("nrc",nrc[1]);
-            // Enviar campus
             String[] campus = resultList.get(5).split(charSplit);
-            bundle.putString("campus",campus[7]);
-            // Enviar docente
             String[] docente = resultList.get(6).split("\"");
-            bundle.putString("docente",docente[1]);
-            // Enviar estudiantes
-            bundle.putStringArrayList("estudiantes",listEstudiantes);
+            Curso curso = new Curso(periodo[1].substring(9), cod_materia[1], nrc[1],
+                0, materia[7], campus[7], docente[1]);
+            bundle.putSerializable("curso", curso);
+            bundle.putParcelable("estudiantes", formatListEstudiantes);
             CursoFormView.putExtras(bundle);
             startActivity(CursoFormView);
 
         } catch (Exception e) {
-            Toast.makeText(this, "Archivo no permitido", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Archivo no cumple el formato de asistencia", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         } finally {
             try {
@@ -162,6 +154,7 @@ public class CSVReaderActivity extends AppCompatActivity {
             Uri uri = data.getData(); //obtener el uri content
             // mostrar la ruta del archivo
             ruta.setText(Objects.requireNonNull(uri).getPath());
+            // invocamos al metodo onPrepareOptionsMenu
             invalidateOptionsMenu();
         }
     }

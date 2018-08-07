@@ -14,6 +14,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.espe.sarcapp.R;
+import com.espe.sarcapp.models.Curso;
+import com.espe.sarcapp.models.Estudiante;
+import com.espe.sarcapp.models.ListaEstudiantes;
 
 import java.util.Objects;
 
@@ -37,7 +40,7 @@ public class CursoFormActivity extends AppCompatActivity implements CursoFormPar
     // Creamos un nuevo Bundle
     private static Bundle datosCurso = new Bundle();
     private static Bundle datosEstudiantes = new Bundle();
-    private int positionanterior;
+    ListaEstudiantes lista_estudiantes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,35 +57,14 @@ public class CursoFormActivity extends AppCompatActivity implements CursoFormPar
         mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        // Detectar cambio de pagina
-        mViewPager.addOnPageChangeListener (new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-            @Override
-            public void onPageScrollStateChanged(int state) { }
-            @Override
-            public void onPageSelected(int position) {
-                // dependiendo de la posición en el viewpager puedes determinar si cambio.
-                if(positionanterior != position) {
-                    // Cambio de pagina.
-                } else {
-                    //No cambio.
-                }
-                positionanterior = position;
-            }
-        });
         // recuperar datos de la activity CrearCursoActivity
         // Obtienes el Bundle del Intent
         Bundle bundle = getIntent().getExtras();
-        // Colocamos los datos del curso en sus respesctivos lugares
-        datosCurso.putString("periodo", Objects.requireNonNull(bundle).getString("periodo"));
-        datosCurso.putString("cod_materia", bundle.getString("cod_materia"));
-        datosCurso.putString("materia", bundle.getString("materia"));
-        datosCurso.putString("nrc", bundle.getString("nrc"));
-        datosCurso.putString("campus", bundle.getString("campus"));
-        datosCurso.putString("docente", bundle.getString("docente"));
-        // Colocamos el array de estudiantes en su respectivo lugar
-        datosEstudiantes.putStringArrayList("estudiantes",bundle.getStringArrayList("estudiantes"));
+        Curso curso = (Curso) getIntent().getSerializableExtra("curso");
+        assert bundle != null;
+        lista_estudiantes = bundle.getParcelable("estudiantes");
+        datosCurso.putSerializable("curso", curso);
+        datosEstudiantes.putParcelable("estudiantes",lista_estudiantes);
     }
 
 
@@ -150,7 +132,7 @@ public class CursoFormActivity extends AppCompatActivity implements CursoFormPar
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

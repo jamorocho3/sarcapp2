@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.espe.sarcapp.R;
+import com.espe.sarcapp.models.ListaEstudiantes;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -72,6 +73,7 @@ public class CursoFormPart3Fragment extends Fragment {
     // Widgets XML
     private View view = null;
     private ListView lv;
+    ListaEstudiantes lista_estudiantes;
 
     @Override
     public View onCreateView(@Nullable LayoutInflater inflater, ViewGroup container,
@@ -93,13 +95,23 @@ public class CursoFormPart3Fragment extends Fragment {
     }
 
     private void cargaEstudiantes(Bundle parametros, Context context) {
-        ArrayList<String> lista = parametros.getStringArrayList("estudiantes");
-        if (!Objects.requireNonNull(lista).isEmpty()) {
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, lista);
+        lista_estudiantes = parametros.getParcelable("estudiantes");
+        if (!Objects.requireNonNull(lista_estudiantes).isEmpty()) {
+            String []lista_nombres = getNombres(lista_estudiantes);
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, lista_nombres);
             lv.setAdapter(arrayAdapter);
         } else {
             Toast.makeText(context, "Algo sucedió mientras se leía la información de los estudiantes!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String[] getNombres(ListaEstudiantes lista_estudiantes) {
+        String[] lista_nombres = new String[lista_estudiantes.size()];
+        for (int i=0;i<lista_estudiantes.size();i++)
+        {
+            lista_nombres[i]=lista_estudiantes.get(i).getNombres();
+        }
+        return lista_nombres;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
