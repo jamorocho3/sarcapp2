@@ -96,6 +96,8 @@ public class CursoFormPart1Fragment extends Fragment implements AdapterView.OnIt
         curso.setDias_semana(i);
         // Preparamos el dato que será enviado al otro fragment
         bus.post(new DiasSemana(String.valueOf(i)));
+        // Preparamos la clase que será enviada al activity
+        bus.post(curso);
     }
 
     @Override

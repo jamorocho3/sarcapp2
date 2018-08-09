@@ -11,13 +11,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import android.widget.Toast;
-
 import com.espe.sarcapp.R;
 import com.espe.sarcapp.models.Curso;
-import com.espe.sarcapp.models.Estudiante;
 import com.espe.sarcapp.models.ListaEstudiantes;
+import com.espe.sarcapp.models.Periodo;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class CursoFormActivity extends AppCompatActivity implements CursoFormPart1Fragment.OnFragmentInteractionListener,
@@ -41,6 +46,9 @@ public class CursoFormActivity extends AppCompatActivity implements CursoFormPar
     private static Bundle datosCurso = new Bundle();
     private static Bundle datosEstudiantes = new Bundle();
     ListaEstudiantes lista_estudiantes;
+    private EventBus bus = EventBus.getDefault();
+    Curso curso;
+    ArrayList<Periodo> horarios;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,16 +84,47 @@ public class CursoFormActivity extends AppCompatActivity implements CursoFormPar
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        bus.unregister(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        bus.register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void obtenerCurso(Curso c) {
+        curso = c;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void obtenerHorarios(ArrayList<Periodo> h) {
+        horarios = h;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_save) {
-            // guardarCurso();
+             guardarCurso();
             // TODO: programar la funcion para guardar datos
-            Toast.makeText(this, "Esto debe guardar los datos", Toast.LENGTH_SHORT).show();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void guardarCurso() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref_curso = database.getReference();
+        DatabaseReference ref_horario = database.getReference(curso.getCodigo_materia()+"/horario");
+        DatabaseReference ref_estudiantes = database.getReference(curso.getCodigo_materia()+"/estudiantes");
+        ref_curso.child(curso.getCodigo_materia()).setValue(curso);
+        ref_horario.setValue(horarios);
+        ref_estudiantes.setValue(lista_estudiantes);
     }
 
     @Override

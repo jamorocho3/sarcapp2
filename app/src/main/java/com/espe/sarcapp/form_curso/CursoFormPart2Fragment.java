@@ -6,6 +6,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.TimePicker;
 
 import com.espe.sarcapp.R;
 import com.espe.sarcapp.form_curso.comunication.DiasSemana;
+import com.espe.sarcapp.models.Periodo;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,6 +31,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import static java.lang.String.valueOf;
 
 
 public class CursoFormPart2Fragment extends Fragment {
@@ -45,9 +50,11 @@ public class CursoFormPart2Fragment extends Fragment {
     private CheckBox cbxLunes, cbxMartes, cbxMiercoles, cbxJueves, cbxViernes;
     private TextView tvDias;
     private EventBus bus = EventBus.getDefault();
+    private EventBus BusHorarios = EventBus.getDefault();
     private String diasSemana;
     private int CONT_CBX_ENABLED = 0; // contador de checkboxes activos
     private ArrayList<CheckBox> arrayCbx = new ArrayList<>();
+
 
     @Override
     public View onCreateView(@Nullable LayoutInflater inflater, ViewGroup container,
@@ -77,6 +84,12 @@ public class CursoFormPart2Fragment extends Fragment {
         cbxJueves = view.findViewById(R.id.cbxJueves);
         cbxViernes = view.findViewById(R.id.cbxViernes);
         // ----------------------------------------------------------------------------------------
+        // CheckBox events
+        cbxLunes.setOnCheckedChangeListener(new selectDay());
+        cbxMartes.setOnCheckedChangeListener(new selectDay());
+        cbxMiercoles.setOnCheckedChangeListener(new selectDay());
+        cbxJueves.setOnCheckedChangeListener(new selectDay());
+        cbxViernes.setOnCheckedChangeListener(new selectDay());
         // EditTexts events
         tinitLunes.setOnClickListener(new GetTime());
         tinitMartes.setOnClickListener(new GetTime());
@@ -89,12 +102,18 @@ public class CursoFormPart2Fragment extends Fragment {
         tendMiercoles.setOnClickListener(new GetTime());
         tendJueves.setOnClickListener(new GetTime());
         tendViernes.setOnClickListener(new GetTime());
-        // CheckBox events
-        cbxLunes.setOnCheckedChangeListener(new selectDay());
-        cbxMartes.setOnCheckedChangeListener(new selectDay());
-        cbxMiercoles.setOnCheckedChangeListener(new selectDay());
-        cbxJueves.setOnCheckedChangeListener(new selectDay());
-        cbxViernes.setOnCheckedChangeListener(new selectDay());
+
+        tinitLunes.addTextChangedListener(new GetText());
+        tinitMartes.addTextChangedListener(new GetText());
+        tinitMiercoles.addTextChangedListener(new GetText());
+        tinitJueves.addTextChangedListener(new GetText());
+        tinitViernes.addTextChangedListener(new GetText());
+
+        tendLunes.addTextChangedListener(new GetText());
+        tendMartes.addTextChangedListener(new GetText());
+        tendMiercoles.addTextChangedListener(new GetText());
+        tendJueves.addTextChangedListener(new GetText());
+        tendViernes.addTextChangedListener(new GetText());
         // -----------------------------------------------------------------------------------------
         tvDias = view.findViewById(R.id.diasSemana);
         // añadir checkboxes en arraylist
@@ -128,7 +147,7 @@ public class CursoFormPart2Fragment extends Fragment {
         diasSemana = b.getDiasSemana().isEmpty() ? "0" : b.getDiasSemana();
         // Colocamos los dias por semana en el textView
         tvDias.setVisibility(View.VISIBLE);
-        tvDias.setText(String.format("%s día/s", String.valueOf(diasSemana)));
+        tvDias.setText(String.format("%s día/s", valueOf(diasSemana)));
         // Si los días son diferentes de "0" los checkboxes se activan
         for (int i = 0; i < arrayCbx.size() ; i++) {
             if (diasSemana.equals("0")) {
@@ -227,7 +246,7 @@ public class CursoFormPart2Fragment extends Fragment {
              * Sino
              */
             for (int i = 0; i < arrayCbx.size() ; i++) {
-                if (diasSemana.equals(String.valueOf(cbxEnabled))) {
+                if (diasSemana.equals(valueOf(cbxEnabled))) {
                     if (!arrayCbx.get(i).isChecked()) {
                         arrayCbx.get(i).setEnabled(false);
                     }
@@ -272,6 +291,42 @@ public class CursoFormPart2Fragment extends Fragment {
         if (!isChecked) {
             init.setText(null);
             end.setText(null);
+        }
+    }
+
+    private class GetText implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            // -------------------------------------------------------------------------------------
+            // Logica para ir recogiendo los datos
+            ArrayList<Periodo> horarios = new ArrayList<>();
+            horarios.add(new Periodo("Lunes", tinitLunes.getText().toString(),
+                tendLunes.getText().toString(), cbxLunes.isChecked()
+            ));
+            horarios.add(new Periodo("Martes", tinitMartes.getText().toString(),
+                    tendMartes.getText().toString(), cbxMartes.isChecked()
+            ));
+            horarios.add(new Periodo("Miercoles", tinitMiercoles.getText().toString(),
+                    tendMiercoles.getText().toString(), cbxMiercoles.isChecked()
+            ));
+            horarios.add(new Periodo("Jueves", tinitJueves.getText().toString(),
+                    tendJueves.getText().toString(), cbxJueves.isChecked()
+            ));
+            horarios.add(new Periodo("Viernes", tinitViernes.getText().toString(),
+                    tendViernes.getText().toString(), cbxViernes.isChecked()
+            ));
+            // Preparamos los datos para ser enviados
+            BusHorarios.post(horarios);
         }
     }
 }
